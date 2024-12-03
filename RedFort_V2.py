@@ -97,7 +97,6 @@ def run_amass(domain, session_dir=None):
     print(f"Recolectando subdominios para {domain} con Amass...")
     result = subprocess.run(["amass", "enum", "-d", domain], stdout=subprocess.PIPE, text=True)
 
-    # Guardar en la carpeta de sesión
     file_name = f"amass_results_{domain}.txt"
     if session_dir:
         save_log(session_dir, file_name, result.stdout)
@@ -119,7 +118,6 @@ def run_shodan_search(ip, session_dir=None):
         api = shodan.Shodan(SHODAN_API_KEY)
         host = api.host(ip)
 
-        # Guardar en la carpeta de sesión
         file_name = f"shodan_results_{ip}.txt"
         if session_dir:
             save_log(session_dir, file_name, str(host))
@@ -416,7 +414,6 @@ def generate_report(session_dir):
         report.write(f"Reporte de la sesión: {session_dir}\n")
         report.write("=" * 40 + "\n")
 
-        # Iterar por todos los archivos en el directorio de sesión
         for file_name in os.listdir(session_dir):
             file_path = os.path.join(session_dir, file_name)
             if os.path.isfile(file_path) and file_name.endswith(".txt"):
