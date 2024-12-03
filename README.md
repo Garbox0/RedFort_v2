@@ -1,4 +1,4 @@
-# REDFORT.v2
+# REDFORT_v2
 
 **RedFort** es una herramienta automatizada de pentesting diseñada para simplificar y agilizar diversas tareas de seguridad informática. Permite ejecutar herramientas populares como Nmap, Amass, Shodan, Nikto, Burp Suite, Metasploit y muchas más, todo dentro de un sistema organizado de sesiones para facilitar la recopilación y análisis de los resultados.
 
