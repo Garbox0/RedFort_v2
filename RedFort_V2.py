@@ -194,23 +194,21 @@ def run_nmap(target, scan_type="default", session_dir=None):
 
 @pause_before_return
 def run_amass(domain, session_dir=None):
-    print("0. Volver al menú principal")
-    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
-        return
     """
     Ejecuta Amass para recolectar subdominios y guarda los resultados.
-    :param domain: Dominio objetivo.
-    :param session_dir: Directorio de la sesión actual.
     """
     print(f"Recolectando subdominios para {domain} con Amass...")
-    result = subprocess.run(["amass", "enum", "-d", domain], stdout=subprocess.PIPE, text=True)
+    result = subprocess.run(
+        ["amass", "enum", "-d", domain],
+        stdout=subprocess.PIPE, text=True
+    )
 
     file_name = f"amass_results_{domain}.txt"
     if session_dir:
         save_log(session_dir, file_name, result.stdout)
     else:
-        with open(file_name, "w") as file:
-            file.write(result.stdout)
+        with open(file_name, "w", encoding="utf-8") as f:
+            f.write(result.stdout)
 
     print(f"Resultados guardados en {file_name}")
 
@@ -651,7 +649,9 @@ def main():
             run_nmap(target, scan_type, session_dir)
         
         elif choice == "2":
-            domain = input("Introduce el dominio: ")
+            domain = input("Introduce el dominio (o 0 para volver): ")
+            if domain == "0":
+                continue
             run_amass(domain, session_dir)
         
         elif choice == "3":
