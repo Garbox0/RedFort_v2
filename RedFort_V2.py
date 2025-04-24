@@ -605,26 +605,6 @@ def print_help():
     print_colored("\nPresiona Enter para volver al menú principal", "yellow")
     input()
 
-# …más abajo, en el main(), justo tras mostrar el header…
-def main():
-    # …
-    while True:
-        clear()
-        print_header()
-        print_colored("\n=== Menú Principal ===", "green")
-        print("H. Ayuda")
-        print("1. Reconocimiento")
-        print("2. Vulnerabilidades Web")
-        # … resto de opciones …
-        choice = input("Selecciona una opción: ").lower()
-        if choice == "h":
-            print_help()
-            continue
-        elif choice == "1":
-            recon_menu(session_dir)
-        # … resto de elif …
-
-
 # ——— Menús especializados ———
 
 def recon_menu(session_dir):
@@ -764,6 +744,7 @@ def main():
         clear()
         print_header()
         print_colored("\n=== Menú Principal ===", "green")
+        print("H. Ayuda")
         print("1. Reconocimiento")
         print("2. Vulnerabilidades Web")
         print("3. Pentesting Web")
@@ -774,7 +755,10 @@ def main():
         print("8. Reporte Consolidado")
         print("9. Salir")
         choice = input("Selecciona una opción: ")
-        if choice == "1":
+        if choice == "h":
+            print_help()
+            continue
+        elif choice == "1":
             recon_menu(session_dir)
         elif choice == "2":
             vuln_menu(session_dir)
