@@ -49,26 +49,55 @@ def safe_run(command, **kwargs):
         return None
 
 def create_session():
-    """Crea un directorio para la sesión actual si no existe."""
-    if not os.path.exists(BASE_DIR):
-        os.makedirs(BASE_DIR)
-        print(f"Directorio base {BASE_DIR} creado.")
+    """Crea un directorio de sesión con timestamp bajo BASE_DIR."""
+    # Asegura que exista el directorio base
+    os.makedirs(BASE_DIR, exist_ok=True)
+    logger.info(f"Directorio base: {BASE_DIR}")
 
+    # Crea carpeta con timestamp
     session_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     session_dir = os.path.join(BASE_DIR, session_name)
     os.makedirs(session_dir, exist_ok=True)
-    print(f"Sesión creada: {session_dir}")
+
+    logger.info(f"Sesión creada: {session_dir}")
+    print_colored(f"Sesión creada: {session_dir}", "green")
     return session_dir
 
 def save_log(session_dir, tool_name, output):
-    """Guarda la salida de una herramienta en un archivo."""
+    """Guarda la salida de una herramienta en session_dir/{tool_name}.txt"""
     log_file = os.path.join(session_dir, f"{tool_name}.txt")
     try:
-        with open(log_file, "w") as f:
-            f.write(output)
-        print(f"Resultados guardados en {log_file}")
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(output or "")
+        logger.info(f"[LOG] {tool_name} → {log_file}")
     except Exception as e:
-        print(f"Error al guardar los resultados: {e}")
+        logger.error(f"Error guardando {tool_name}: {e}")
+        print_colored(f"Error al guardar {tool_name}: {e}", "red")
+
+def generate_report(session_dir):
+    """
+    Concatena todos los .txt de session_dir en consolidated_report.txt,
+    ignorando el propio consolidated_report.txt.
+    """
+    print_colored("\nGenerando reporte consolidado…", "blue")
+    report_path = os.path.join(session_dir, "consolidated_report.txt")
+    try:
+        with open(report_path, "w", encoding="utf-8") as report:
+            report.write(f"Reporte de sesión: {session_dir}\n")
+            report.write("=" * 40 + "\n")
+            for fname in sorted(os.listdir(session_dir)):
+                if not fname.endswith(".txt") or fname == os.path.basename(report_path):
+                    continue
+                report.write(f"\n--- {fname} ---\n")
+                with open(os.path.join(session_dir, fname), "r", encoding="utf-8") as f:
+                    report.write(f.read())
+                report.write("\n" + "=" * 40 + "\n")
+
+        print_colored(f"Reporte generado: {report_path}", "green")
+        logger.info(f"[REPORT] Consolidado → {report_path}")
+    except Exception as e:
+        logger.error(f"Error generando reporte: {e}")
+        print_colored(f"Error generando reporte: {e}", "red")
 
 def print_colored(text, color="red"):
     colors = {
@@ -478,30 +507,6 @@ def generate_payload(session_dir):
     print(f"Generando payload en {output_file}...")
     subprocess.run(["msfvenom", "-p", payload, f"LHOST={lhost}", f"LPORT={lport}", "-f", "exe", "-o", output_file])
     print("Payload generado exitosamente.")
-
-### Generador de Reporte ###
-
-def generate_report(session_dir):
-    """
-    Genera un reporte consolidado a partir de los resultados guardados en la sesión.
-    :param session_dir: Ruta al directorio de la sesión actual.
-    """
-    print("\nGenerando reporte consolidado...")
-    report_file = os.path.join(session_dir, "Reporte_Sesion.txt")
-
-    with open(report_file, "w") as report:
-        report.write(f"Reporte de la sesión: {session_dir}\n")
-        report.write("=" * 40 + "\n")
-
-        for file_name in os.listdir(session_dir):
-            file_path = os.path.join(session_dir, file_name)
-            if os.path.isfile(file_path) and file_name.endswith(".txt"):
-                report.write(f"\n--- {file_name} ---\n")
-                with open(file_path, "r") as f:
-                    report.write(f.read())
-                report.write("\n" + "=" * 40 + "\n")
-
-    print(f"Reporte generado exitosamente en {report_file}")
 
 ### Main Menú ###
 
