@@ -157,6 +157,9 @@ def check_and_install_dependencies():
 
 @pause_before_return
 def run_nmap(target, scan_type="default", session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta un escaneo Nmap optimizado según el tipo de escaneo seleccionado.
     Guarda los resultados en el directorio de sesión.
@@ -191,6 +194,9 @@ def run_nmap(target, scan_type="default", session_dir=None):
 
 @pause_before_return
 def run_amass(domain, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta Amass para recolectar subdominios y guarda los resultados.
     :param domain: Dominio objetivo.
@@ -210,6 +216,9 @@ def run_amass(domain, session_dir=None):
 
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Busca información en Shodan para una IP y guarda los resultados.
     :param ip: Dirección IP objetivo.
@@ -236,6 +245,9 @@ def run_shodan_search(ip, session_dir=None):
 
 @pause_before_return
 def run_nikto(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Escaneo Nikto con tuning rápido y streaming de salida.
     """
@@ -277,6 +289,9 @@ def run_nikto(target, session_dir=None):
 
 @pause_before_return
 def run_whatweb(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta WhatWeb en el objetivo especificado y guarda los resultados en la carpeta de sesión.
     :param target: URL o IP objetivo.
@@ -301,6 +316,9 @@ def run_whatweb(target, session_dir=None):
 
 @pause_before_return
 def run_gobuster(target, wordlist, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta Gobuster para escaneo de directorios o subdominios y guarda los resultados.
     :param target: URL objetivo.
@@ -323,6 +341,9 @@ def run_gobuster(target, wordlist, session_dir=None):
 
 @pause_before_return
 def run_owasp_zap(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta OWASP ZAP para escaneo de seguridad web a través de su API y guarda los resultados.
     Omite el apikey si no está configurado en .env.
@@ -347,6 +368,9 @@ def run_owasp_zap(target, session_dir=None):
 
 @pause_before_return
 def run_burp_suite(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta Burp Suite para escaneo de seguridad web a través de su API y guarda los resultados.
     Omite el apikey si no está configurado en .env (sólo disponible en Burp Pro + REST API).
@@ -371,6 +395,9 @@ def run_burp_suite(target, session_dir=None):
 
 @pause_before_return
 def run_sqlmap(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta sqlmap para escaneo de vulnerabilidades SQLi y guarda los resultados.
     :param target: URL objetivo.
@@ -390,6 +417,9 @@ def run_sqlmap(target, session_dir=None):
 
 @pause_before_return
 def run_xsstrike(target, session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """
     Ejecuta XSStrike para escaneo de vulnerabilidades XSS y guarda los resultados.
     :param target: URL objetivo.
@@ -411,6 +441,9 @@ def run_xsstrike(target, session_dir=None):
 
 @pause_before_return
 def run_metasploit():
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Ejecuta Metasploit Framework (requiere instalación previa)."""
     print("Ejecutando Metasploit Framework...")
     result = subprocess.run(["msfconsole"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -444,6 +477,9 @@ def run_empire():
 
 @pause_before_return
 def run_mobsf(session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Ejecuta MobSF para análisis de aplicaciones móviles y guarda los logs."""
     print("Ejecutando MobSF...")
     result = subprocess.run(["python3", "manage.py", "runserver"], cwd="/ruta/a/mobsf", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -461,6 +497,9 @@ def run_mobsf(session_dir=None):
 
 @pause_before_return
 def run_drozer(session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Ejecuta Drozer para análisis de seguridad en aplicaciones Android y guarda los logs."""
     print("Ejecutando Drozer...")
     result = subprocess.run(["drozer", "console", "connect"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -480,6 +519,9 @@ def run_drozer(session_dir=None):
 
 @pause_before_return
 def run_aircrack_ng(session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Ejecuta Aircrack-ng para auditoría de redes Wi-Fi y guarda los resultados."""
     print("\n--- Aircrack-ng ---")
     interface = input("Introduce la interfaz de red (ej. wlan0): ")
@@ -498,6 +540,9 @@ def run_aircrack_ng(session_dir=None):
 
 @pause_before_return
 def run_ettercap(session_dir=None):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Ejecuta Ettercap para análisis de redes y ataques MITM y guarda los logs."""
     print("\n--- Ettercap ---")
     
@@ -519,6 +564,9 @@ def run_ettercap(session_dir=None):
 
 @pause_before_return
 def generate_payload(session_dir):
+    print("0. Volver al menú principal")
+    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
+        return
     """Genera un payload utilizando msfvenom y lo guarda en la carpeta de sesión."""
     lhost = input("Introduce la dirección IP (LHOST): ")
     lport = input("Introduce el puerto (LPORT): ")
