@@ -615,19 +615,41 @@ def recon_menu(session_dir):
         print("1. Nmap")
         print("2. Amass")
         print("3. Shodan")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
-            scan_type = input_non_empty("Tipo de escaneo (default/quick/stealth/detailed): ")
-            target    = input_non_empty("IP o dominio: ")
+            # Sub‑menú Nmap
+            print("Modos de escaneo Nmap:")
+            print(" 0. Volver")
+            print(" 1. default")
+            print(" 2. quick")
+            print(" 3. stealth")
+            print(" 4. detailed")
+            modo = input("Selecciona modo (número): ").strip()
+            if modo == "0":
+                continue
+            scan_map = {"1":"default","2":"quick","3":"stealth","4":"detailed"}
+            scan_type = scan_map.get(modo, "default")
+            target = input("IP o dominio (o 0 para volver): ").strip()
+            if target == "0":
+                continue
             run_nmap(target, scan_type, session_dir)
+
         elif opt == "2":
-            domain = input_non_empty("Dominio: ")
+            # Amass
+            domain = input("Dominio (o 0 para volver): ").strip()
+            if domain == "0":
+                continue
             run_amass(domain, session_dir)
+
         elif opt == "3":
-            ip = input_non_empty("IP: ")
+            # Shodan
+            ip = input("IP (o 0 para volver): ").strip()
+            if ip == "0":
+                continue
             run_shodan_search(ip, session_dir)
+
         else:
             print_colored("Opción no válida.", "yellow")
 
