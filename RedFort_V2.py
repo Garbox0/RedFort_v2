@@ -654,13 +654,13 @@ def main():
             run_shodan_search(ip, session_dir)
         
         elif choice == "4":
-            target = input("Introduce la URL o IP: ")
+            target = input("Introduce la URL o IP (o 0 para volver):  ")
             if target == "0":
                 continue
             run_nikto(target, session_dir)
         
         elif choice == "5":
-            target = input("Introduce la URL o IP: ")
+            target = input("Introduce la URL o IP (o 0 para volver):")
             if target == "0":
                 continue
             run_whatweb(target, session_dir)
