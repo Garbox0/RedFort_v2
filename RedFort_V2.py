@@ -197,12 +197,10 @@ def run_amass(domain, session_dir=None):
     """
     Ejecuta Amass para recolectar subdominios y guarda los resultados.
     """
-    print(f"Recolectando subdominios para {domain} con Amass...")
     result = subprocess.run(
         ["amass", "enum", "-d", domain],
         stdout=subprocess.PIPE, text=True
     )
-
     file_name = f"amass_results_{domain}.txt"
     if session_dir:
         save_log(session_dir, file_name, result.stdout)
@@ -214,13 +212,8 @@ def run_amass(domain, session_dir=None):
 
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
-    print("0. Volver al menú principal")
-    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
-        return
     """
     Busca información en Shodan para una IP y guarda los resultados.
-    :param ip: Dirección IP objetivo.
-    :param session_dir: Directorio de la sesión actual.
     """
     print(f"Buscando información sobre {ip} en Shodan...")
     try:
@@ -655,20 +648,32 @@ def main():
             run_amass(domain, session_dir)
         
         elif choice == "3":
-            ip = input("Introduce la IP: ")
+            ip = input("Introduce la IP (o 0 para volver): ")
+            if ip == "0":
+                continue
             run_shodan_search(ip, session_dir)
         
         elif choice == "4":
             target = input("Introduce la URL o IP: ")
+            if target == "0":
+                continue
             run_nikto(target, session_dir)
         
         elif choice == "5":
             target = input("Introduce la URL o IP: ")
+            if target == "0":
+                continue
             run_whatweb(target, session_dir)
         
         elif choice == "6":
-            target = input("Introduce la URL: ")
-            wordlist = input("Introduce la ruta al archivo de wordlist: ")
+            print("\nMódulo de Gobuster")
+            print("0. Volver al menú principal")
+            target = input("Introduce la URL (o 0 para volver): ")
+            if target == "0":
+                continue
+            wordlist = input("Introduce la ruta al archivo de wordlist (o 0 para volver): ")
+            if wordlist == "0":
+                continue
             run_gobuster(target, wordlist, session_dir)
         
         elif choice == "7":
