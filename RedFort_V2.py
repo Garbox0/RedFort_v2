@@ -157,9 +157,6 @@ def check_and_install_dependencies():
 
 @pause_before_return
 def run_nmap(target, scan_type="default", session_dir=None):
-    print("0. Volver al menú principal")
-    if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
-        return
     """
     Ejecuta un escaneo Nmap optimizado según el tipo de escaneo seleccionado.
     Guarda los resultados en el directorio de sesión.
