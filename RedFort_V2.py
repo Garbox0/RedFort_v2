@@ -60,20 +60,59 @@ def safe_run(command, **kwargs):
         print_colored(f"Excepción ejecutando {' '.join(command)}: {e}", "red")
         return None
 
-def create_session():
-    """Crea un directorio de sesión con timestamp bajo BASE_DIR."""
-    # Asegura que exista el directorio base
-    os.makedirs(BASE_DIR, exist_ok=True)
-    logger.info(f"Directorio base: {BASE_DIR}")
+import shutil
 
-    # Crea carpeta con timestamp
-    session_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    session_dir = os.path.join(BASE_DIR, session_name)
+def create_session():
+    """
+    Crea un directorio de sesión en:
+      BASE_DIR/YYYY-MM-DD/HH-MM-SS[_descripcion]
+    """
+    # 1) Asegura BASE_DIR
+    os.makedirs(BASE_DIR, exist_ok=True)
+
+    # 2) Carpeta de fecha
+    date_folder = datetime.datetime.now().strftime("%Y-%m-%d")
+    date_dir = os.path.join(BASE_DIR, date_folder)
+    os.makedirs(date_dir, exist_ok=True)
+
+    # 3) Nombre de sesión (hora + descripción opcional)
+    time_str = datetime.datetime.now().strftime("%H-%M-%S")
+    desc = input("Descripción de la sesión (Enter = sólo hora): ").strip()
+    safe_desc = desc.replace(" ", "_") if desc else ""
+    session_name = f"{time_str}{'_'+safe_desc if safe_desc else ''}"
+    session_dir = os.path.join(date_dir, session_name)
     os.makedirs(session_dir, exist_ok=True)
 
     logger.info(f"Sesión creada: {session_dir}")
     print_colored(f"Sesión creada: {session_dir}", "green")
     return session_dir
+
+def prune_old_sessions(days=30):
+    """
+    Elimina carpetas de sesión con fecha anterior a 'days' días.
+    """
+    cutoff = datetime.datetime.now() - datetime.timedelta(days=days)
+    for date_folder in os.listdir(BASE_DIR):
+        try:
+            folder_date = datetime.datetime.strptime(date_folder, "%Y-%m-%d")
+        except ValueError:
+            continue
+        date_path = os.path.join(BASE_DIR, date_folder)
+        if folder_date < cutoff:
+            shutil.rmtree(date_path)
+            logger.info(f"Eliminada sesión antigua: {date_path}")
+
+def list_sessions():
+    """
+    Imprime en pantalla todas las sesiones agrupadas por fecha.
+    """
+    for date_folder in sorted(os.listdir(BASE_DIR)):
+        date_path = os.path.join(BASE_DIR, date_folder)
+        if not os.path.isdir(date_path):
+            continue
+        print_colored(f"\nFecha: {date_folder}", "blue")
+        for ses in sorted(os.listdir(date_path)):
+            print(f"  • {ses}")
 
 def save_log(session_dir, tool_name, output):
     """Guarda la salida de una herramienta en session_dir/{tool_name}.txt"""
@@ -758,7 +797,9 @@ def network_menu(session_dir):
 # ——— Menú Principal ———
 def main():
     check_and_install_dependencies()
-    session_dir = create_session()
+    prune_old_sessions(days=30)           
+    print("Sesiones existentes:"); list_sessions()
+    session_dir = create_session()        
     while True:
         clear()
         print_header()
