@@ -1,0 +1,5 @@
+python-dotenv
+pyfiglet
+shodan
+validators
+requests
