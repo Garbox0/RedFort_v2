@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import shodan
 import requests
@@ -104,12 +105,14 @@ def prune_old_sessions(days=30):
 
 def list_sessions():
     """
-    Imprime en pantalla todas las sesiones agrupadas por fecha.
+    Imprime en pantalla todas las sesiones agrupadas por fecha YYYY-MM-DD.
+    Omite carpetas antiguas sin guiones.
     """
+    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
     for date_folder in sorted(os.listdir(BASE_DIR)):
-        date_path = os.path.join(BASE_DIR, date_folder)
-        if not os.path.isdir(date_path):
+        if not date_pattern.match(date_folder):
             continue
+        date_path = os.path.join(BASE_DIR, date_folder)
         print_colored(f"\nFecha: {date_folder}", "blue")
         for ses in sorted(os.listdir(date_path)):
             print(f"  • {ses}")
