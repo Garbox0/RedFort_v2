@@ -39,6 +39,10 @@ def safe_run(command, **kwargs):
             logger.error(f"Error ({result.returncode}): {result.stderr.strip()}")
             print_colored(f"Error: {' '.join(command)}\n{result.stderr}", "red")
         return result
+    except subprocess.TimeoutExpired as e:
+        logger.error(f"Timeout ({e.timeout}s) en: {' '.join(command)}")
+        print_colored(f"⏱ Timeout tras {e.timeout}s ejecutando: {' '.join(command)}", "yellow")
+        return None
     except Exception as e:
         logger.exception(f"Fallo al ejecutar: {' '.join(command)}")
         print_colored(f"Excepción ejecutando {' '.join(command)}: {e}", "red")
@@ -190,24 +194,43 @@ def run_shodan_search(ip, session_dir=None):
 
 def run_nikto(target, session_dir=None):
     """
-    Ejecuta Nikto en el objetivo especificado y guarda los resultados en la carpeta de sesión.
-    :param target: URL o IP objetivo.
-    :param session_dir: Directorio de la sesión actual.
+    Escaneo Nikto con tuning rápido y streaming de salida.
     """
-    print(f"Ejecutando Nikto en {target}...")
-    result = subprocess.run(["nikto", "-h", target], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    print(f"Ejecutando Nikto en {target} (tuning rápido)...")
+    cmd = [
+        "nikto",
+        "-h", target,
+        "-Tuning", "1",     # solo pruebas básicas
+        "-Display", "V",    # muestra cada vulnerabilidad al vuelo
+        "-timeout", "10"    # timeout de socket en segundos
+    ]
+    # usamos Popen para ver salida en directo
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        output = []
+        for line in proc.stdout:
+            print(line, end="")   # streaming
+            output.append(line)
+        proc.wait(timeout=300)     # matamos si pasa de 5 minutos
+    except subprocess.TimeoutExpired:
+        print_colored("Nikto ha superado el tiempo límite (5 min). Abortando.", "yellow")
+        proc.kill()
+    except Exception as e:
+        print_colored(f"Error lanzando Nikto: {e}", "red")
+        return
 
-    if result.returncode == 0:
-        print("Nikto ha terminado de escanear.")
+    if proc.returncode == 0:
+        print_colored("Nikto ha terminado de analizar.", "green")
+        results = "".join(output)
         file_name = f"nikto_results_{target}.txt"
         if session_dir:
-            save_log(session_dir, file_name, result.stdout)
+            save_log(session_dir, file_name, results)
         else:
-            with open(file_name, "w") as file:
-                file.write(result.stdout)
+            with open(file_name, "w") as f:
+                f.write(results)
         print(f"Resultados guardados en {file_name}")
     else:
-        print(f"Hubo un error al intentar ejecutar Nikto: {result.stderr}")
+        print_colored(f"Nikto terminó con código {proc.returncode}", "red")
 
 def run_whatweb(target, session_dir=None):
     """
