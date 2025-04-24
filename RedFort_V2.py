@@ -636,7 +636,7 @@ def main():
             print("4. Detailed (Detallado, salida en formato Grepable)")
             scan_choice = input("Selecciona un modo de escaneo: ")
 
-            if web_choice == "0":
+            if scan_choice == "0":
                 continue
 
             scan_types = {
@@ -710,7 +710,7 @@ def main():
             print("4. Volver")
             exploit_choice = input("Selecciona una opción: ")
 
-            if web_choice == "0":
+            if exploit_choice == "0":
                 continue
             
             if exploit_choice == "1":
@@ -732,7 +732,7 @@ def main():
             print("3. Volver")
             mobile_choice = input("Selecciona una opción: ")
 
-            if web_choice == "0":
+            if mobile_choice == "0":
                 continue
             
             if mobile_choice == "1":
@@ -752,7 +752,7 @@ def main():
             print("3. Volver")
             network_choice = input("Selecciona una opción: ")
 
-            if web_choice == "0":
+            if network_choice == "0":
                 continue
 
             if network_choice == "1":
