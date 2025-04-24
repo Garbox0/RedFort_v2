@@ -567,8 +567,7 @@ def generate_payload(session_dir):
     subprocess.run(["msfvenom", "-p", payload, f"LHOST={lhost}", f"LPORT={lport}", "-f", "exe", "-o", output_file])
     print("Payload generado exitosamente.")
 
-### Main Menú ###
-
+### Figlet ###
 def print_header():
     """Imprime el encabezado del menú principal con figlet."""
     clear()
@@ -580,211 +579,228 @@ def print_header():
 
 ## Función de ayuda ##
 def print_help():
-    print("""
-[AYUDA]
-1. Nmap: Escaneo de puertos y servicios.
-2. Amass: Recolección de subdominios.
-3. Shodan: Información de dispositivos expuestos.
-4. Nikto: Vulnerabilidades web.
-5. WhatWeb: Tecnologías web detectadas.
-6. Gobuster: Fuerza bruta de directorios/archivos.
-7. Pentesting Web: ZAP, Burp, sqlmap, XSStrike.
-8. Explotación: Metasploit, BeEF, Empire.
-9. Mobile: MobSF, Drozer.
-10. Red: Aircrack-ng, Ettercap.
-11. Payloads: Generación con msfvenom.
-12. Reporte: Consolidado de resultados.
-""")
+    print_colored("\n== Ayuda RedFort_V2 ==\n", "blue")
+    print("Navegación:")
+    print(" • Teclea el número de la opción y Enter.")
+    print(" • En cualquier submenú, 0 para volver al menú anterior.")
+    print("\nHerramientas y recursos:")
+    print(" • Nmap       → https://nmap.org")
+    print(" • Amass      → https://github.com/OWASP/Amass")
+    print(" • Shodan     → https://shodan.io")
+    print(" • Nikto      → https://cirt.net/Nikto2")
+    print(" • WhatWeb    → https://github.com/urbanadventurer/WhatWeb")
+    print(" • Gobuster   → https://github.com/OJ/gobuster")
+    print(" • ZAP        → https://owasp.org/www-project-zap/")
+    print(" • Burp Suite → https://portswigger.net/burp")
+    print(" • sqlmap     → https://sqlmap.org")
+    print(" • XSStrike   → https://github.com/s0md3v/XSStrike")
+    print(" • Metasploit → https://metasploit.com")
+    print(" • BeEF       → https://github.com/beefproject/beef")
+    print(" • Empire     → https://github.com/EmpireProject/Empire")
+    print(" • MobSF      → https://github.com/MobSF/Mobile-Security-Framework-MobSF")
+    print(" • Drozer     → https://github.com/FSecureLABS/drozer")
+    print(" • Aircrack-ng→ https://www.aircrack-ng.org")
+    print(" • Ettercap   → https://www.ettercap-project.org")
+    print(" • msfvenom   → https://metasploit.com/download")
+    print_colored("\nPresiona Enter para volver al menú principal", "yellow")
+    input()
 
+# …más abajo, en el main(), justo tras mostrar el header…
+def main():
+    # …
+    while True:
+        clear()
+        print_header()
+        print_colored("\n=== Menú Principal ===", "green")
+        print("H. Ayuda")
+        print("1. Reconocimiento")
+        print("2. Vulnerabilidades Web")
+        # … resto de opciones …
+        choice = input("Selecciona una opción: ").lower()
+        if choice == "h":
+            print_help()
+            continue
+        elif choice == "1":
+            recon_menu(session_dir)
+        # … resto de elif …
+
+
+# ——— Menús especializados ———
+
+def recon_menu(session_dir):
+    """Menú de Reconocimiento: Nmap, Amass, Shodan."""
+    while True:
+        print_colored("\n== Reconocimiento ==", "blue")
+        print("0. Volver")
+        print("1. Nmap")
+        print("2. Amass")
+        print("3. Shodan")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            scan_type = input_non_empty("Tipo de escaneo (default/quick/stealth/detailed): ")
+            target    = input_non_empty("IP o dominio: ")
+            run_nmap(target, scan_type, session_dir)
+        elif opt == "2":
+            domain = input_non_empty("Dominio: ")
+            run_amass(domain, session_dir)
+        elif opt == "3":
+            ip = input_non_empty("IP: ")
+            run_shodan_search(ip, session_dir)
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+def vuln_menu(session_dir):
+    """Menú de Vulnerabilidades Web: Nikto, WhatWeb, Gobuster."""
+    while True:
+        print_colored("\n== Vulnerabilidades Web ==", "blue")
+        print("0. Volver")
+        print("1. Nikto")
+        print("2. WhatWeb")
+        print("3. Gobuster")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            target = input_non_empty("URL o IP: ")
+            run_nikto(target, session_dir)
+        elif opt == "2":
+            target = input_non_empty("URL o IP: ")
+            run_whatweb(target, session_dir)
+        elif opt == "3":
+            target   = input_non_empty("URL: ")
+            wordlist = input_non_empty("Wordlist: ")
+            run_gobuster(target, wordlist, session_dir)
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+def web_menu(session_dir):
+    """Menú de Pentesting Web: ZAP, Burp, sqlmap, XSStrike."""
+    while True:
+        print_colored("\n== Pentesting Web ==", "blue")
+        print("0. Volver")
+        print("1. OWASP ZAP")
+        print("2. Burp Suite")
+        print("3. sqlmap")
+        print("4. XSStrike")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            target = input_non_empty("URL: ")
+            run_owasp_zap(target, session_dir)
+        elif opt == "2":
+            target = input_non_empty("URL: ")
+            run_burp_suite(target, session_dir)
+        elif opt == "3":
+            target = input_non_empty("URL: ")
+            run_sqlmap(target, session_dir)
+        elif opt == "4":
+            target = input_non_empty("URL: ")
+            run_xsstrike(target, session_dir)
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+def exploit_menu():
+    """Menú de Explotación: Metasploit, BeEF, Empire."""
+    while True:
+        print_colored("\n== Explotación ==", "blue")
+        print("0. Volver")
+        print("1. Metasploit")
+        print("2. BeEF")
+        print("3. Empire")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            run_metasploit()
+        elif opt == "2":
+            run_beef()
+        elif opt == "3":
+            run_empire()
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+def mobile_menu(session_dir):
+    """Menú de Seguridad Móvil: MobSF, Drozer."""
+    while True:
+        print_colored("\n== Seguridad Móvil ==", "blue")
+        print("0. Volver")
+        print("1. MobSF")
+        print("2. Drozer")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            run_mobsf(session_dir)
+        elif opt == "2":
+            run_drozer(session_dir)
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+def network_menu(session_dir):
+    """Menú de Auditoría de Red: Aircrack-ng, Ettercap."""
+    while True:
+        print_colored("\n== Auditoría de Red ==", "blue")
+        print("0. Volver")
+        print("1. Aircrack-ng")
+        print("2. Ettercap")
+        opt = input("Elige una opción: ")
+        if opt == "0":
+            break
+        elif opt == "1":
+            run_aircrack_ng(session_dir)
+        elif opt == "2":
+            run_ettercap(session_dir)
+        else:
+            print_colored("Opción no válida.", "yellow")
+
+# ——— Menú Principal ———
 def main():
     check_and_install_dependencies()
-    session_dir = create_session()  
-
+    session_dir = create_session()
     while True:
+        clear()
         print_header()
-        print("\nMódulo de Pentesting")
-        print("1. Escanear con Nmap")
-        print("2. Recolectar subdominios con Amass")
-        print("3. Buscar información en Shodan")
-        print("4. Escanear vulnerabilidades web con Nikto")
-        print("5. Enumerar tecnologías web con WhatWeb")
-        print("6. Buscar directorios/archivos ocultos con Gobuster")
-        print("7. Pentesting Web")
-        print("8. Explotación")
-        print("9. Seguridad de aplicaciones móviles")
-        print("10. Módulo de Auditorías de Red")
-        print("11. Generar Payloads")
-        print("12. Generar Reporte Consolidado")
-        print("13. Salir")
+        print_colored("\n=== Menú Principal ===", "green")
+        print("1. Reconocimiento")
+        print("2. Vulnerabilidades Web")
+        print("3. Pentesting Web")
+        print("4. Explotación")
+        print("5. Seguridad Móvil")
+        print("6. Auditoría de Red")
+        print("7. Generar Payloads")
+        print("8. Reporte Consolidado")
+        print("9. Salir")
         choice = input("Selecciona una opción: ")
-
         if choice == "1":
-            print("\nModos de escaneo Nmap:")
-            print("0. Volver al menú principal")
-            print("1. Default (Completo y balanceado)")
-            print("2. Quick (Rápido, omitiendo resolución DNS)")
-            print("3. Stealth (Sigiloso, lento)")
-            print("4. Detailed (Detallado, salida en formato Grepable)")
-            scan_choice = input("Selecciona un modo de escaneo: ")
-
-            if scan_choice == "0":
-                continue
-
-            scan_types = {
-                "1": "default",
-                "2": "quick",
-                "3": "stealth",
-                "4": "detailed",
-            }
-
-            scan_type = scan_types.get(scan_choice, "default")
-            target = input("Introduce el objetivo (IP o dominio): ")
-            run_nmap(target, scan_type, session_dir)
-        
+            recon_menu(session_dir)
         elif choice == "2":
-            domain = input("Introduce el dominio (o 0 para volver): ")
-            if domain == "0":
-                continue
-            run_amass(domain, session_dir)
-        
+            vuln_menu(session_dir)
         elif choice == "3":
-            ip = input("Introduce la IP (o 0 para volver): ")
-            if ip == "0":
-                continue
-            run_shodan_search(ip, session_dir)
-        
+            web_menu(session_dir)
         elif choice == "4":
-            target = input("Introduce la URL o IP (o 0 para volver):  ")
-            if target == "0":
-                continue
-            run_nikto(target, session_dir)
-        
+            exploit_menu()
         elif choice == "5":
-            target = input("Introduce la URL o IP (o 0 para volver):")
-            if target == "0":
-                continue
-            run_whatweb(target, session_dir)
-        
+            mobile_menu(session_dir)
         elif choice == "6":
-            print("\nMódulo de Gobuster")
-            print("0. Volver al menú principal")
-            target = input("Introduce la URL (o 0 para volver): ")
-            if target == "0":
-                continue
-            wordlist = input("Introduce la ruta al archivo de wordlist (o 0 para volver): ")
-            if wordlist == "0":
-                continue
-            run_gobuster(target, wordlist, session_dir)
-        
+            network_menu(session_dir)
         elif choice == "7":
-            print("\nMódulo de Pentesting Web")
-            print("0. Volver al menú principal")
-            print("1. Escanear con OWASP ZAP")
-            print("2. Escanear con Burp Suite")
-            print("3. Escanear con sqlmap")
-            print("4. Escanear con XSStrike")
-            print("5. Volver")
-            web_choice = input("Selecciona una opción: ")
-
-            if web_choice == "0":
-                continue
-            
-            if web_choice == "1":
-                target = input("Introduce la URL: ")
-                run_owasp_zap(target, session_dir)
-            elif web_choice == "2":
-                target = input("Introduce la URL: ")
-                run_burp_suite(target, session_dir)
-            elif web_choice == "3":
-                target = input("Introduce la URL: ")
-                run_sqlmap(target, session_dir)
-            elif web_choice == "4":
-                target = input("Introduce la URL: ")
-                run_xsstrike(target, session_dir)
-            elif web_choice == "5":
-                continue
-            else:
-                print("Opción no válida. Intenta de nuevo.")
-                
-        elif choice == "8":
-            print("\nMódulo de Explotación")
-            print("0. Volver al menú principal")
-            print("1. Ejecutar Metasploit")
-            print("2. Ejecutar BeEF")
-            print("3. Ejecutar Empire")
-            print("4. Volver")
-            exploit_choice = input("Selecciona una opción: ")
-
-            if exploit_choice == "0":
-                continue
-            
-            if exploit_choice == "1":
-                run_metasploit()
-            elif exploit_choice == "2":
-                run_beef()
-            elif exploit_choice == "3":
-                run_empire()
-            elif exploit_choice == "4":
-                continue
-            else:
-                print("Opción no válida. Intenta de nuevo.")
-        
-        elif choice == "9":
-            print("\nMódulo de Seguridad de Aplicaciones Móviles")
-            print("0. Volver al menú principal")
-            print("1. Ejecutar MobSF")
-            print("2. Ejecutar Drozer")
-            print("3. Volver")
-            mobile_choice = input("Selecciona una opción: ")
-
-            if mobile_choice == "0":
-                continue
-            
-            if mobile_choice == "1":
-                run_mobsf(session_dir)
-            elif mobile_choice == "2":
-                run_drozer(session_dir)
-            elif mobile_choice == "3":
-                continue
-            else:
-                print("Opción no válida. Intenta de nuevo.")
-        
-        elif choice == "10":
-            print("\nMódulo de Auditorías de Red")
-            print("0. Volver al menú principal")
-            print("1. Ejecutar Aircrack-ng")
-            print("2. Ejecutar Ettercap")
-            print("3. Volver")
-            network_choice = input("Selecciona una opción: ")
-
-            if network_choice == "0":
-                continue
-
-            if network_choice == "1":
-                run_aircrack_ng(session_dir)
-            elif network_choice == "2":
-                run_ettercap(session_dir)
-            elif network_choice == "3":
-                continue
-        
-        elif choice == "11":
             generate_payload(session_dir)
-
-        elif choice == "12":
+        elif choice == "8":
             generate_report(session_dir)
-
-        elif choice == "13":
-            print("Saliendo...")
+        elif choice == "9":
+            print_colored("Saliendo…", "yellow")
             break
-        
         else:
-            print("Opción no válida. Intenta de nuevo.")
+            print_colored("Opción no válida.", "red")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print_colored("\nInterrupción por usuario. Saliendo...", "yellow")
+        print_colored("\nInterrupción por usuario. Saliendo…", "yellow")
         logger.warning("Interrupción por usuario (Ctrl‑C)")
     except Exception:
         logger.exception("Error inesperado en main()")
