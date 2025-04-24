@@ -1,12 +1,48 @@
+import os
 import subprocess
 import shodan
 import requests
 import pyfiglet
-import os
 import datetime
+import logging
+import validators
+from dotenv import load_dotenv
 
-BASE_DIR = "./reportes"
-SHODAN_API_KEY = "TU_API_KEY"
+load_dotenv()
+BASE_DIR       = os.getenv("BASE_DIR", "./reportes")
+SHODAN_API_KEY = os.getenv("SHODAN_API_KEY")
+ZAP_API_KEY    = os.getenv("ZAP_API_KEY")
+BURP_API_KEY   = os.getenv("BURP_API_KEY")
+
+os.makedirs(BASE_DIR, exist_ok=True)
+logging.basicConfig(
+    filename=os.path.join(BASE_DIR, "redfort.log"),
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+def clear():
+    os.system("cls" if os.name == "nt" else "clear")
+
+def safe_run(command, **kwargs):
+    logger.info(f"Ejecutando: {' '.join(command)}")
+    try:
+        result = subprocess.run(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            **kwargs
+        )
+        if result.returncode != 0:
+            logger.error(f"Error ({result.returncode}): {result.stderr.strip()}")
+            print_colored(f"Error: {' '.join(command)}\n{result.stderr}", "red")
+        return result
+    except Exception as e:
+        logger.exception(f"Fallo al ejecutar: {' '.join(command)}")
+        print_colored(f"Excepción ejecutando {' '.join(command)}: {e}", "red")
+        return None
 
 def create_session():
     """Crea un directorio para la sesión actual si no existe."""
@@ -29,6 +65,26 @@ def save_log(session_dir, tool_name, output):
         print(f"Resultados guardados en {log_file}")
     except Exception as e:
         print(f"Error al guardar los resultados: {e}")
+
+def print_colored(text, color="red"):
+    colors = {
+        "red": "\033[31m", "green": "\033[32m",
+        "yellow": "\033[33m","blue": "\033[34m","reset": "\033[0m"
+    }
+    print(f"{colors.get(color,colors['red'])}{text}{colors['reset']}")
+
+def input_non_empty(prompt):
+    """
+    Solicita una entrada no vacía y válida (IP o dominio).
+    """
+    while True:
+        value = input(prompt).strip()
+        if not value:
+            print_colored("La entrada no puede estar vacía.", "yellow")
+            continue
+        if validators.ipv4(value) or validators.ipv6(value) or validators.domain(value):
+            return value
+        print_colored("Valor no válido. Introduce IP o dominio correcto.", "yellow")
 
 def check_and_install_dependencies():
     """Verifica y, si es necesario, instala las dependencias necesarias."""
@@ -201,15 +257,15 @@ def run_gobuster(target, wordlist, session_dir=None):
 def run_owasp_zap(target, session_dir=None):
     """
     Ejecuta OWASP ZAP para escaneo de seguridad web a través de su API y guarda los resultados.
-    :param target: URL objetivo.
-    :param session_dir: Directorio de la sesión actual.
+    Omite el apikey si no está configurado en .env.
     """
     print(f"Ejecutando OWASP ZAP en {target}...")
     zap_url = "http://127.0.0.1:8080"
-    api_key = "TU_API_KEY_AQUI"
+    params = {"url": target}
+    if ZAP_API_KEY:
+        params["apikey"] = ZAP_API_KEY
 
-    response = requests.get(f"{zap_url}/JSON/ascan/action/scan", params={"url": target, "apikey": api_key})
-
+    response = requests.get(f"{zap_url}/JSON/ascan/action/scan", params=params)
     if response.status_code == 200:
         message = f"Escaneo iniciado en {target}. Espera a que ZAP termine."
         print(message)
@@ -225,15 +281,15 @@ def run_owasp_zap(target, session_dir=None):
 def run_burp_suite(target, session_dir=None):
     """
     Ejecuta Burp Suite para escaneo de seguridad web a través de su API y guarda los resultados.
-    :param target: URL objetivo.
-    :param session_dir: Directorio de la sesión actual.
+    Omite el apikey si no está configurado en .env (sólo disponible en Burp Pro + REST API).
     """
     print(f"Ejecutando Burp Suite en {target}...")
     burp_url = "http://127.0.0.1:8080"
-    api_key = "TU_API_KEY_AQUI"
+    params = {"url": target}
+    if BURP_API_KEY:
+        params["apikey"] = BURP_API_KEY
 
-    response = requests.get(f"{burp_url}/burp-api/v1/scan", params={"url": target, "apikey": api_key})
-
+    response = requests.get(f"{burp_url}/burp-api/v1/scan", params=params)
     if response.status_code == 200:
         message = f"Escaneo iniciado en {target} con Burp Suite."
         print(message)
@@ -428,12 +484,30 @@ def generate_report(session_dir):
 
 def print_header():
     """Imprime el encabezado del menú principal con figlet."""
-    os.system("clear")
+    clear()
     print("=" * 24)
     figlet_text = pyfiglet.figlet_format("RedFort")
     print(f"\033[31m{figlet_text}\033[0m")
     print("                        by GarboX0")
     print("=" * 24)
+
+## Función de ayuda ##
+def print_help():
+    print("""
+[AYUDA]
+1. Nmap: Escaneo de puertos y servicios.
+2. Amass: Recolección de subdominios.
+3. Shodan: Información de dispositivos expuestos.
+4. Nikto: Vulnerabilidades web.
+5. WhatWeb: Tecnologías web detectadas.
+6. Gobuster: Fuerza bruta de directorios/archivos.
+7. Pentesting Web: ZAP, Burp, sqlmap, XSStrike.
+8. Explotación: Metasploit, BeEF, Empire.
+9. Mobile: MobSF, Drozer.
+10. Red: Aircrack-ng, Ettercap.
+11. Payloads: Generación con msfvenom.
+12. Reporte: Consolidado de resultados.
+""")
 
 def main():
     check_and_install_dependencies()
@@ -586,4 +660,11 @@ def main():
             print("Opción no válida. Intenta de nuevo.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print_colored("\nInterrupción por usuario. Saliendo...", "yellow")
+        logger.warning("Interrupción por usuario (Ctrl‑C)")
+    except Exception:
+        logger.exception("Error inesperado en main()")
+        print_colored("Ha ocurrido un error. Revisa redfort.log para más detalles.", "red")
