@@ -629,11 +629,15 @@ def main():
 
         if choice == "1":
             print("\nModos de escaneo Nmap:")
+            print("0. Volver al menú principal")
             print("1. Default (Completo y balanceado)")
             print("2. Quick (Rápido, omitiendo resolución DNS)")
             print("3. Stealth (Sigiloso, lento)")
             print("4. Detailed (Detallado, salida en formato Grepable)")
             scan_choice = input("Selecciona un modo de escaneo: ")
+
+            if web_choice == "0":
+                continue
 
             scan_types = {
                 "1": "default",
@@ -669,12 +673,16 @@ def main():
         
         elif choice == "7":
             print("\nMódulo de Pentesting Web")
+            print("0. Volver al menú principal")
             print("1. Escanear con OWASP ZAP")
             print("2. Escanear con Burp Suite")
             print("3. Escanear con sqlmap")
             print("4. Escanear con XSStrike")
             print("5. Volver")
             web_choice = input("Selecciona una opción: ")
+
+            if web_choice == "0":
+                continue
             
             if web_choice == "1":
                 target = input("Introduce la URL: ")
@@ -695,11 +703,15 @@ def main():
                 
         elif choice == "8":
             print("\nMódulo de Explotación")
+            print("0. Volver al menú principal")
             print("1. Ejecutar Metasploit")
             print("2. Ejecutar BeEF")
             print("3. Ejecutar Empire")
             print("4. Volver")
             exploit_choice = input("Selecciona una opción: ")
+
+            if web_choice == "0":
+                continue
             
             if exploit_choice == "1":
                 run_metasploit()
@@ -714,10 +726,14 @@ def main():
         
         elif choice == "9":
             print("\nMódulo de Seguridad de Aplicaciones Móviles")
+            print("0. Volver al menú principal")
             print("1. Ejecutar MobSF")
             print("2. Ejecutar Drozer")
             print("3. Volver")
             mobile_choice = input("Selecciona una opción: ")
+
+            if web_choice == "0":
+                continue
             
             if mobile_choice == "1":
                 run_mobsf(session_dir)
@@ -730,10 +746,14 @@ def main():
         
         elif choice == "10":
             print("\nMódulo de Auditorías de Red")
+            print("0. Volver al menú principal")
             print("1. Ejecutar Aircrack-ng")
             print("2. Ejecutar Ettercap")
             print("3. Volver")
             network_choice = input("Selecciona una opción: ")
+
+            if web_choice == "0":
+                continue
 
             if network_choice == "1":
                 run_aircrack_ng(session_dir)
