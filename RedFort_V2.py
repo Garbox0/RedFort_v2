@@ -1,4 +1,5 @@
 import os
+import shutil
 import re
 import subprocess
 import shodan
@@ -61,8 +62,6 @@ def safe_run(command, **kwargs):
         print_colored(f"Excepción ejecutando {' '.join(command)}: {e}", "red")
         return None
 
-import shutil
-
 def create_session():
     """
     Crea un directorio de sesión en:
@@ -116,6 +115,69 @@ def list_sessions():
         print_colored(f"\nFecha: {date_folder}", "blue")
         for ses in sorted(os.listdir(date_path)):
             print(f"  • {ses}")
+
+def gather_sessions():
+    """
+    Devuelve lista de tuplas (ruta_completa, etiqueta) para cada sesión en BASE_DIR.
+    Etiqueta: YYYY-MM-DD/HH‑MM‑SS[_desc]
+    """
+    sessions = []
+    date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+    for date_folder in sorted(os.listdir(BASE_DIR)):
+        if not date_pattern.match(date_folder):
+            continue
+        date_path = os.path.join(BASE_DIR, date_folder)
+        for ses in sorted(os.listdir(date_path)):
+            sessions.append((
+                os.path.join(date_path, ses),
+                f"{date_folder}/{ses}"
+            ))
+    return sessions
+
+def delete_sessions():
+    """Muestra las sesiones y permite eliminar la seleccionada."""
+    sessions = gather_sessions()
+    if not sessions:
+        print_colored("No hay sesiones para eliminar.", "yellow")
+        input("Enter para continuar…")
+        return
+    print_colored("\n== Eliminar Sesiones ==", "blue")
+    for i, (_, label) in enumerate(sessions, 1):
+        print(f"{i}. {label}")
+    choice = input("Número de sesión a eliminar (0=Cancelar): ").strip()
+    if choice == "0":
+        return
+    if not choice.isdigit() or not (1 <= int(choice) <= len(sessions)):
+        print_colored("Selección no válida.", "red")
+        return
+    path, label = sessions[int(choice)-1]
+    confirm = input(f"¿Eliminar {label}? (s/N): ").lower()
+    if confirm == "s":
+        shutil.rmtree(path)
+        print_colored(f"Sesión {label} eliminada.", "green")
+        logger.info(f"Sesión eliminada: {path}")
+
+def select_or_create_session():
+    """
+    Menú inicial: elegir sesión existente, crear nueva o eliminar sesiones.
+    Devuelve la ruta de session_dir seleccionada/creada.
+    """
+    while True:
+        sessions = gather_sessions()
+        print_colored("\n=== Sesiones Disponibles ===", "green")
+        for i, (_, label) in enumerate(sessions, 1):
+            print(f"{i}. {label}")
+        print("0. Nueva sesión")
+        print("D. Eliminar sesiones")
+        opt = input("Selecciona opción: ").strip().lower()
+        if opt == "0":
+            return create_session()
+        if opt == "d":
+            delete_sessions()
+            continue
+        if opt.isdigit() and 1 <= int(opt) <= len(sessions):
+            return sessions[int(opt)-1][0]
+        print_colored("Opción no válida.", "yellow")
 
 def save_log(session_dir, tool_name, output):
     """Guarda la salida de una herramienta en session_dir/{tool_name}.txt"""
