@@ -22,6 +22,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def pause_before_return(func):
+    """
+    Decorador que añade una pausa al final de cada herramienta
+    para volver al menú principal.
+    """
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        print_colored("\nPresiona Enter para volver al menú principal", "yellow")
+        input()
+        return result
+    return wrapper
+
 def clear():
     os.system("cls" if os.name == "nt" else "clear")
 
@@ -143,6 +155,7 @@ def check_and_install_dependencies():
 
 ### 1 Reconocimiento ###
 
+@pause_before_return
 def run_nmap(target, scan_type="default", session_dir=None):
     """
     Ejecuta un escaneo Nmap optimizado según el tipo de escaneo seleccionado.
@@ -176,7 +189,7 @@ def run_nmap(target, scan_type="default", session_dir=None):
 
     print(f"Resultados guardados en {file_name}")
 
-
+@pause_before_return
 def run_amass(domain, session_dir=None):
     """
     Ejecuta Amass para recolectar subdominios y guarda los resultados.
@@ -195,7 +208,7 @@ def run_amass(domain, session_dir=None):
 
     print(f"Resultados guardados en {file_name}")
 
-
+@pause_before_return
 def run_shodan_search(ip, session_dir=None):
     """
     Busca información en Shodan para una IP y guarda los resultados.
@@ -221,6 +234,7 @@ def run_shodan_search(ip, session_dir=None):
 
 ### 2 Análisis de Vulnerabilidades ###
 
+@pause_before_return
 def run_nikto(target, session_dir=None):
     """
     Escaneo Nikto con tuning rápido y streaming de salida.
@@ -261,6 +275,7 @@ def run_nikto(target, session_dir=None):
     else:
         print_colored(f"Nikto terminó con código {proc.returncode}", "red")
 
+@pause_before_return
 def run_whatweb(target, session_dir=None):
     """
     Ejecuta WhatWeb en el objetivo especificado y guarda los resultados en la carpeta de sesión.
@@ -284,6 +299,7 @@ def run_whatweb(target, session_dir=None):
 
 ### 3 Pentesting WEB ###
 
+@pause_before_return
 def run_gobuster(target, wordlist, session_dir=None):
     """
     Ejecuta Gobuster para escaneo de directorios o subdominios y guarda los resultados.
@@ -305,7 +321,7 @@ def run_gobuster(target, wordlist, session_dir=None):
     else:
         print(f"Hubo un error al intentar ejecutar Gobuster: {result.stderr}")
 
-
+@pause_before_return
 def run_owasp_zap(target, session_dir=None):
     """
     Ejecuta OWASP ZAP para escaneo de seguridad web a través de su API y guarda los resultados.
@@ -329,7 +345,7 @@ def run_owasp_zap(target, session_dir=None):
         if session_dir:
             save_log(session_dir, f"zap_error_{target}.txt", error_message)
 
-
+@pause_before_return
 def run_burp_suite(target, session_dir=None):
     """
     Ejecuta Burp Suite para escaneo de seguridad web a través de su API y guarda los resultados.
@@ -353,7 +369,7 @@ def run_burp_suite(target, session_dir=None):
         if session_dir:
             save_log(session_dir, f"burp_error_{target}.txt", error_message)
 
-
+@pause_before_return
 def run_sqlmap(target, session_dir=None):
     """
     Ejecuta sqlmap para escaneo de vulnerabilidades SQLi y guarda los resultados.
@@ -372,7 +388,7 @@ def run_sqlmap(target, session_dir=None):
 
     print(f"Resultados guardados en {file_name}")
 
-
+@pause_before_return
 def run_xsstrike(target, session_dir=None):
     """
     Ejecuta XSStrike para escaneo de vulnerabilidades XSS y guarda los resultados.
@@ -393,6 +409,7 @@ def run_xsstrike(target, session_dir=None):
 
 ### 4 Explotación ###
 
+@pause_before_return
 def run_metasploit():
     """Ejecuta Metasploit Framework (requiere instalación previa)."""
     print("Ejecutando Metasploit Framework...")
@@ -425,6 +442,7 @@ def run_empire():
 
 ### 5 Mobile Pentesting ###
 
+@pause_before_return
 def run_mobsf(session_dir=None):
     """Ejecuta MobSF para análisis de aplicaciones móviles y guarda los logs."""
     print("Ejecutando MobSF...")
@@ -441,7 +459,7 @@ def run_mobsf(session_dir=None):
         if session_dir:
             save_log(session_dir, "mobsf_error.txt", error_message)
 
-
+@pause_before_return
 def run_drozer(session_dir=None):
     """Ejecuta Drozer para análisis de seguridad en aplicaciones Android y guarda los logs."""
     print("Ejecutando Drozer...")
@@ -460,6 +478,7 @@ def run_drozer(session_dir=None):
 
 ### 6 Pentesting RED ###
 
+@pause_before_return
 def run_aircrack_ng(session_dir=None):
     """Ejecuta Aircrack-ng para auditoría de redes Wi-Fi y guarda los resultados."""
     print("\n--- Aircrack-ng ---")
@@ -477,7 +496,7 @@ def run_aircrack_ng(session_dir=None):
     if session_dir:
         save_log(session_dir, "aircrack_results.txt", result.stdout)
 
-
+@pause_before_return
 def run_ettercap(session_dir=None):
     """Ejecuta Ettercap para análisis de redes y ataques MITM y guarda los logs."""
     print("\n--- Ettercap ---")
@@ -498,6 +517,7 @@ def run_ettercap(session_dir=None):
 
 ### Payloads ###
 
+@pause_before_return
 def generate_payload(session_dir):
     """Genera un payload utilizando msfvenom y lo guarda en la carpeta de sesión."""
     lhost = input("Introduce la dirección IP (LHOST): ")
