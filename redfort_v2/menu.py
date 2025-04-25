@@ -12,8 +12,8 @@ def print_header():
     print("                        by GarboX0")
     print("=" * 24)
 
-## Función de ayuda ##
 def print_help():
+    """Muestra la ayuda y espera Enter."""
     print_colored("\n== Ayuda RedFort_V2 ==\n", "blue")
     print("Navegación:")
     print(" • Teclea el número de la opción y Enter.")
@@ -40,7 +40,6 @@ def print_help():
     print_colored("\nPresiona Enter para volver al menú principal", "yellow")
     input()
 
-# ——— Menú Principal (sin pausa) ———
 def print_menu():
     """Muestra las opciones del menú principal."""
     print_colored("\n=== Menú Principal ===", "green")
@@ -54,8 +53,6 @@ def print_menu():
     print("7. Generar Payloads")
     print("8. Reporte Consolidado")
     print("9. Salir")
-
-# ——— Menús especializados ———
 
 def recon_menu(session_dir):
     """Menú de Reconocimiento: Nmap, Amass, Shodan."""
@@ -80,8 +77,9 @@ def recon_menu(session_dir):
             modo = input("Selecciona modo (número): ").strip()
             if modo == "0":
                 continue
-            scan_map = {"1": "default", "2": "quick", "3": "stealth", "4": "detailed"}
+            scan_map = {"1":"default","2":"quick","3":"stealth","4":"detailed"}
             scan_type = scan_map.get(modo, "default")
+            # Usamos input_non_empty para obligar a una entrada
             target = input_non_empty("IP o dominio (o 0 para volver): ")
             if target == "0":
                 continue
@@ -89,14 +87,29 @@ def recon_menu(session_dir):
 
         elif opt == "2":
             # Amass
-            domain = input_non_empty("Dominio (o 0 para volver): ")
+            domain = input("Dominio (o 0 para volver): ").strip()
+            if domain == "0":
+                continue
+            # Validar no vacío antes de continuar
+            while not domain:
+                print_colored("Valor no válido. Introduce un dominio o 0 para volver.", "yellow")
+                domain = input("Dominio (o 0 para volver): ").strip()
+                if domain == "0":
+                    break
             if domain == "0":
                 continue
             run_amass(domain, session_dir)
 
         elif opt == "3":
             # Shodan
-            ip = input_non_empty("IP o dominio (o 0 para volver): ")
+            ip = input("IP o dominio (o 0 para volver): ").strip()
+            if ip == "0":
+                continue
+            while not ip:
+                print_colored("Valor no válido. Introduce IP o dominio correcto.", "yellow")
+                ip = input("IP o dominio (o 0 para volver): ").strip()
+                if ip == "0":
+                    break
             if ip == "0":
                 continue
             run_shodan_search(ip, session_dir)
@@ -112,7 +125,7 @@ def vuln_menu(session_dir):
         print("1. Nikto")
         print("2. WhatWeb")
         print("3. Gobuster")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
@@ -137,7 +150,7 @@ def web_menu(session_dir):
         print("2. Burp Suite")
         print("3. sqlmap")
         print("4. XSStrike")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
@@ -163,7 +176,7 @@ def exploit_menu():
         print("1. Metasploit")
         print("2. BeEF")
         print("3. Empire")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
@@ -182,7 +195,7 @@ def mobile_menu(session_dir):
         print("0. Volver")
         print("1. MobSF")
         print("2. Drozer")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
@@ -199,7 +212,7 @@ def network_menu(session_dir):
         print("0. Volver")
         print("1. Aircrack-ng")
         print("2. Ettercap")
-        opt = input("Elige una opción: ")
+        opt = input("Elige una opción: ").strip()
         if opt == "0":
             break
         elif opt == "1":
