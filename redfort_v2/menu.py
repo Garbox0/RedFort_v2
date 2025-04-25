@@ -2,6 +2,7 @@ import pyfiglet
 from .utils   import clear, print_colored, input_non_empty
 from .tools   import *
 from .session import create_session, delete_sessions, generate_report
+from .menu import print_header, print_help, print_menu
 
 def print_header():
     """Imprime el encabezado del menú principal con figlet."""
@@ -39,6 +40,21 @@ def print_help():
     print(" • msfvenom   → https://metasploit.com/download")
     print_colored("\nPresiona Enter para volver al menú principal", "yellow")
     input()
+
+# ——— Menú Principal (sin pausa) ———
+def print_menu():
+    """Muestra las opciones del menú principal."""
+    print_colored("\n=== Menú Principal ===", "green")
+    print("H. Ayuda")
+    print("1. Reconocimiento")
+    print("2. Vulnerabilidades Web")
+    print("3. Pentesting Web")
+    print("4. Explotación")
+    print("5. Seguridad Móvil")
+    print("6. Auditoría de Red")
+    print("7. Generar Payloads")
+    print("8. Reporte Consolidado")
+    print("9. Salir")
 
 # ——— Menús especializados ———
 

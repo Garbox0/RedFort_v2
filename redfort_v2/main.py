@@ -1,11 +1,11 @@
 import logging
 import os
 from dotenv import load_dotenv
-from .session import select_or_create_session, prune_old_sessions, list_sessions, generate_report
-from .menu    import print_header, print_help, recon_menu, vuln_menu, web_menu, exploit_menu, mobile_menu, network_menu
-from .utils   import clear, print_colored
+from .session      import select_or_create_session, prune_old_sessions, list_sessions, generate_report
+from .menu         import print_header, print_help, print_menu, recon_menu, vuln_menu, web_menu, exploit_menu, mobile_menu, network_menu
+from .utils        import clear, print_colored
 from .dependencies import check_and_install_dependencies
-from .tools   import generate_payload
+from .tools        import generate_payload
 
 load_dotenv()
 
@@ -20,6 +20,7 @@ logging.basicConfig(
 def main():
     check_and_install_dependencies()
     prune_old_sessions(days=30)
+
     print("Sesiones existentes:")
     list_sessions()
     session_dir = select_or_create_session()
@@ -27,9 +28,15 @@ def main():
     while True:
         clear()
         print_header()
-        print_help()
+        print_menu()
         choice = input("Selecciona una opción: ").strip().lower()
-        if choice == "1":
+
+        if choice == "h":
+            clear()
+            print_header()
+            print_help()
+            continue
+        elif choice == "1":
             recon_menu(session_dir)
         elif choice == "2":
             vuln_menu(session_dir)
