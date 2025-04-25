@@ -70,17 +70,26 @@ def run_amass(domain, session_dir=None):
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
     """
-    Busca información en Shodan por API o CLI según disponibilidad de SHODAN_API_KEY.
+    Busca información en Shodan usando la API si SHODAN_API_KEY está en .env,
+    o por CLI si no hay clave o el usuario elige hacerlo así.
     """
+    # 1) Validar IP no vacía
     if not ip:
         print_colored("IP o dominio no puede estar vacío.", "yellow")
         return
 
-    # decidir modo: API si existe key, sino CLI
-    mode = "1" if SHODAN_API_KEY and input("Usar Shodan API (1) o CLI (2)? [1/2]: ").strip() == "1" else "2"
-    file_name = f"shodan_results_{ip}.txt"
+    # 2) Elegir modo solo si hay SHODAN_API_KEY
+    if SHODAN_API_KEY:
+        choice = input("Usar Shodan API (1) o Shodan CLI (2)? [1/2]: ").strip()
+        mode = "api" if choice == "1" else "cli"
+    else:
+        mode = "cli"
 
-    if mode == "1":
+    file_name = f"shodan_results_{ip}.txt"
+    output = ""
+
+    # 3A) Modo API
+    if mode == "api":
         print_colored(f"Buscando {ip} con Shodan API…", "blue")
         try:
             import shodan
@@ -90,16 +99,28 @@ def run_shodan_search(ip, session_dir=None):
         except Exception as e:
             print_colored(f"Error Shodan API: {e}", "red")
             return
+
+    # 3B) Modo CLI
     else:
         print_colored(f"Buscando {ip} con Shodan CLI…", "blue")
         result = safe_run(["shodan", "host", ip])
-        output = (result.stdout or result.stderr or "").strip()
+        if result:
+            if result.stderr:
+                print_colored(result.stderr.strip(), "red")
+            output = (result.stdout or "").strip()
 
+    # 4) Comprobar resultado
+    if not output:
+        print_colored("No se obtuvieron datos de Shodan.", "yellow")
+        return
+
+    # 5) Guardar en sesión o en fichero
     if session_dir:
         save_log(session_dir, file_name, output)
     else:
         with open(file_name, "w", encoding="utf-8") as f:
             f.write(output)
+
     print_colored(f"Resultados guardados en {file_name}", "green")
 
 ### 2 Análisis de Vulnerabilidades ###
