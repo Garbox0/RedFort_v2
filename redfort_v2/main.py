@@ -1,4 +1,5 @@
-import logging, os
+import logging
+import os
 from dotenv import load_dotenv
 from .session import select_or_create_session, prune_old_sessions, list_sessions, generate_report
 from .menu    import print_header, print_help, recon_menu, vuln_menu, web_menu, exploit_menu, mobile_menu, network_menu
@@ -6,9 +7,15 @@ from .utils   import clear, print_colored
 from .dependencies import check_and_install_dependencies
 from .tools   import generate_payload
 
-
 load_dotenv()
-logging.basicConfig(level=logging.INFO, filename="./reportes/redfort.log")
+
+# Asegurarnos de que exista el directorio de reportes antes de configurar el log
+BASE_DIR = os.getenv("BASE_DIR", "./reportes")
+os.makedirs(BASE_DIR, exist_ok=True)
+logging.basicConfig(
+    level=logging.INFO,
+    filename=os.path.join(BASE_DIR, "redfort.log")
+)
 
 def main():
     check_and_install_dependencies()
@@ -44,5 +51,5 @@ def main():
         else:
             print_colored("Opción no válida.", "red")
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()
