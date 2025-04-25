@@ -2,7 +2,6 @@ import pyfiglet
 from .utils   import clear, print_colored, input_non_empty
 from .tools   import *
 from .session import create_session, delete_sessions, generate_report
-from .menu import print_header, print_help, print_menu
 
 def print_header():
     """Imprime el encabezado del menú principal con figlet."""
