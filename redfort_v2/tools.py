@@ -70,47 +70,37 @@ def run_amass(domain, session_dir=None):
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
     """
-    Permite al usuario elegir entre Shodan API o Shodan CLI,
-    independientemente de si SHODAN_API_KEY está o no en .env.
+    Obtiene info de una IP usando:
+     • Shodan API si SHODAN_API_KEY está en .env
+     • ipinfo.io público en caso contrario
     """
     # 1) Validar IP no vacía
     if not ip.strip():
         print_colored("IP o dominio no puede estar vacío.", "yellow")
         return
 
-    # 2) Preguntar siempre al usuario
-    choice = input("¿Usar Shodan API (1) o Shodan CLI (2)? [1/2]: ").strip()
-    mode = "api" if choice == "1" else "cli"
+    file_name = f"shodan_or_ipinfo_{ip}.txt"
 
-    file_name = f"shodan_results_{ip}.txt"
-    output = ""
-
-    # 3A) Modo API
-    if mode == "api":
-        if not SHODAN_API_KEY:
-            print_colored("SHODAN_API_KEY no encontrada en .env.", "red")
-            return
+    # 2) Si hay clave, usamos Shodan API
+    if SHODAN_API_KEY:
         print_colored(f"Buscando {ip} con Shodan API…", "blue")
         try:
             import shodan
-            api  = shodan.Shodan(SHODAN_API_KEY)
-            host = api.host(ip)
+            api    = shodan.Shodan(SHODAN_API_KEY)
+            host   = api.host(ip)
             output = str(host)
         except Exception as e:
             print_colored(f"Error Shodan API: {e}", "red")
             return
-
-    # 3B) Modo CLI
     else:
-        print_colored(f"Buscando {ip} con Shodan CLI…", "blue")
-        result = safe_run(["shodan", "host", ip])
-        if result and result.stderr:
-            print_colored(result.stderr.strip(), "red")
+        # 3) Fallback sin API: usamos ipinfo.io (no requiere clave)
+        print_colored(f"Buscando {ip} en ipinfo.io…", "blue")
+        result = safe_run(["curl", "-s", f"https://ipinfo.io/{ip}/json"])
         output = (result.stdout or "").strip()
 
-    # 4) Comprobar y guardar
+    # 4) Validar y guardar
     if not output:
-        print_colored("No se obtuvieron datos de Shodan.", "yellow")
+        print_colored("No se obtuvieron datos de la búsqueda.", "yellow")
         return
 
     if session_dir:
