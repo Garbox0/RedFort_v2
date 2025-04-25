@@ -70,31 +70,31 @@ def run_amass(domain, session_dir=None):
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
     """
-    Busca información en Shodan usando la API si SHODAN_API_KEY está en .env,
-    o por CLI si no hay clave o el usuario elige hacerlo así.
+    Permite al usuario elegir entre Shodan API o Shodan CLI,
+    independientemente de si SHODAN_API_KEY está o no en .env.
     """
     # 1) Validar IP no vacía
-    if not ip:
+    if not ip.strip():
         print_colored("IP o dominio no puede estar vacío.", "yellow")
         return
 
-    # 2) Elegir modo solo si hay SHODAN_API_KEY
-    if SHODAN_API_KEY:
-        choice = input("Usar Shodan API (1) o Shodan CLI (2)? [1/2]: ").strip()
-        mode = "api" if choice == "1" else "cli"
-    else:
-        mode = "cli"
+    # 2) Preguntar siempre al usuario
+    choice = input("¿Usar Shodan API (1) o Shodan CLI (2)? [1/2]: ").strip()
+    mode = "api" if choice == "1" else "cli"
 
     file_name = f"shodan_results_{ip}.txt"
     output = ""
 
     # 3A) Modo API
     if mode == "api":
+        if not SHODAN_API_KEY:
+            print_colored("SHODAN_API_KEY no encontrada en .env.", "red")
+            return
         print_colored(f"Buscando {ip} con Shodan API…", "blue")
         try:
             import shodan
-            api    = shodan.Shodan(SHODAN_API_KEY)
-            host   = api.host(ip)
+            api  = shodan.Shodan(SHODAN_API_KEY)
+            host = api.host(ip)
             output = str(host)
         except Exception as e:
             print_colored(f"Error Shodan API: {e}", "red")
@@ -104,17 +104,15 @@ def run_shodan_search(ip, session_dir=None):
     else:
         print_colored(f"Buscando {ip} con Shodan CLI…", "blue")
         result = safe_run(["shodan", "host", ip])
-        if result:
-            if result.stderr:
-                print_colored(result.stderr.strip(), "red")
-            output = (result.stdout or "").strip()
+        if result and result.stderr:
+            print_colored(result.stderr.strip(), "red")
+        output = (result.stdout or "").strip()
 
-    # 4) Comprobar resultado
+    # 4) Comprobar y guardar
     if not output:
         print_colored("No se obtuvieron datos de Shodan.", "yellow")
         return
 
-    # 5) Guardar en sesión o en fichero
     if session_dir:
         save_log(session_dir, file_name, output)
     else:
