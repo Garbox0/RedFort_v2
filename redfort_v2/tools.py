@@ -70,40 +70,36 @@ def run_amass(domain, session_dir=None):
 @pause_before_return
 def run_shodan_search(ip, session_dir=None):
     """
-    Opción para usar Shodan API o Shodan CLI para una IP y guardar resultados.
+    Busca información en Shodan por API o CLI según disponibilidad de SHODAN_API_KEY.
     """
-    # Elegir modo de uso
-    mode = input("Usar Shodan API (1) o Shodan CLI (2)? [1/2]: ").strip()
+    if not ip:
+        print_colored("IP o dominio no puede estar vacío.", "yellow")
+        return
+
+    # decidir modo: API si existe key, sino CLI
+    mode = "1" if SHODAN_API_KEY and input("Usar Shodan API (1) o CLI (2)? [1/2]: ").strip() == "1" else "2"
     file_name = f"shodan_results_{ip}.txt"
 
     if mode == "1":
-        # Modo API
-        apikey = os.getenv("SHODAN_API_KEY")
-        if not apikey:
-            print_colored("SHODAN_API_KEY no configurada en .env.", "red")
-            return
         print_colored(f"Buscando {ip} con Shodan API…", "blue")
         try:
-            api = shodan.Shodan(apikey)
-            host = api.host(ip)
+            import shodan
+            api    = shodan.Shodan(SHODAN_API_KEY)
+            host   = api.host(ip)
             output = str(host)
-        except shodan.APIError as e:
-            print_colored(f"Error con la API de Shodan: {e}", "red")
+        except Exception as e:
+            print_colored(f"Error Shodan API: {e}", "red")
             return
-
     else:
-        # Modo CLI (por defecto)
         print_colored(f"Buscando {ip} con Shodan CLI…", "blue")
         result = safe_run(["shodan", "host", ip])
-        output = (result.stdout or "").strip()
+        output = (result.stdout or result.stderr or "").strip()
 
-    # Guardar resultados
     if session_dir:
         save_log(session_dir, file_name, output)
     else:
         with open(file_name, "w", encoding="utf-8") as f:
             f.write(output)
-
     print_colored(f"Resultados guardados en {file_name}", "green")
 
 ### 2 Análisis de Vulnerabilidades ###
@@ -207,24 +203,21 @@ def run_gobuster(target, wordlist, session_dir=None):
 @pause_before_return
 def run_owasp_zap(target, session_dir=None):
     """
-    Opción para usar ZAP API o zap‑cli para escaneo de seguridad web.
+    Ejecuta OWASP ZAP vía API o zap‑cli según disponibilidad de ZAP_API_KEY.
     """
     print("0. Volver al menú principal")
     if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
         return
 
-    mode = input("Usar ZAP API (1) o zap‑cli (2)? [1/2]: ").strip()
+    mode = "1" if ZAP_API_KEY and input("Usar ZAP API (1) o zap‑cli (2)? [1/2]: ").strip() == "1" else "2"
     file_name = f"zap_results_{target}.txt"
 
     if mode == "1":
-        if not ZAP_API_KEY:
-            print_colored("ZAP_API_KEY no configurada en .env.", "red")
-            return
         print_colored(f"Ejecutando ZAP via API en {target}…", "blue")
         zap_url = "http://127.0.0.1:8080"
-        params = {"url": target, "apikey": ZAP_API_KEY}
-        resp   = requests.get(f"{zap_url}/JSON/ascan/action/scan", params=params)
-        output = resp.text if resp.status_code != 200 else f"Escaneo iniciado en {target}."
+        resp    = requests.get(f"{zap_url}/JSON/ascan/action/scan",
+                               params={"url": target, "apikey": ZAP_API_KEY})
+        output  = resp.text if resp.status_code != 200 else f"Escaneo ZAP iniciado en {target}."
     else:
         print_colored(f"Ejecutando zap‑cli quick-scan en {target}…", "blue")
         result = safe_run(["zap-cli", "quick-scan", target])
@@ -240,24 +233,21 @@ def run_owasp_zap(target, session_dir=None):
 @pause_before_return
 def run_burp_suite(target, session_dir=None):
     """
-    Opción para usar Burp API o abrir Burp Suite GUI.
+    Ejecuta Burp Suite vía API o abre GUI según disponibilidad de BURP_API_KEY.
     """
     print("0. Volver al menú principal")
     if input("Pulsa 0 y Enter para volver, o Enter para continuar: ") == "0":
         return
 
-    mode = input("Usar Burp API (1) o abrir GUI (2)? [1/2]: ").strip()
+    mode = "1" if BURP_API_KEY and input("Usar Burp API (1) o GUI (2)? [1/2]: ").strip() == "1" else "2"
     file_name = f"burp_results_{target}.txt"
 
     if mode == "1":
-        if not BURP_API_KEY:
-            print_colored("BURP_API_KEY no configurada en .env.", "red")
-            return
         print_colored(f"Ejecutando Burp API scan en {target}…", "blue")
         burp_url = "http://127.0.0.1:8080"
-        params   = {"url": target, "apikey": BURP_API_KEY}
-        resp     = requests.get(f"{burp_url}/burp-api/v1/scan", params=params)
-        output   = resp.text if resp.status_code != 200 else f"Escaneo iniciado en {target}."
+        resp     = requests.get(f"{burp_url}/burp-api/v1/scan",
+                                params={"url": target, "apikey": BURP_API_KEY})
+        output   = resp.text if resp.status_code != 200 else f"Escaneo Burp iniciado en {target}."
     else:
         print_colored("Abriendo Burp Suite GUI…", "blue")
         subprocess.Popen(["burpsuite"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
